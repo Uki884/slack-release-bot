@@ -1,0 +1,21 @@
+{
+  "name": "bolt-js-aws-lambda-receiver",
+  "version": "1.0.0",
+  "description": "Deploying to AWS Lambda ⚡️ Bolt for JavaScript using the AwsLambdaReceiver",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:local": "serverless offline --noPrependStageInUrl --verbose",
+    "deploy": "serverless deploy"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@slack/bolt": "^3.2.0",
+    "@vendia/serverless-express": "^4.10.1"
+  },
+  "devDependencies": {
+    "serverless": "^3.24.1",
+    "serverless-offline": "^6.9.0"
+  }
+}
