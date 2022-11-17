@@ -75,7 +75,7 @@ app.message(directMention(), "リリースしたい", async ({ message, say }) =
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "リリースできそうなPRが見つからなかったよ...！もっと開発しよう！",
+            text: "リリースできそうなPRが見つからなかったよ！もっと開発しようね！",
           },
         }
       ]
