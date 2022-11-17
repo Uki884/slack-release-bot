@@ -1,4 +1,13 @@
 const { App, AwsLambdaReceiver } = require('@slack/bolt');
+const axiosBase = require("axios");
+
+const axios = axiosBase.create({
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+  },
+  responseType: "json",
+});
 
 const awsLambdaReceiver = new AwsLambdaReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -40,6 +49,14 @@ app.action('button_click', async ({ body, ack, say }) => {
 
 app.message('goodbye', async ({ message, say }) => {
   await say(`See ya later, <@${message.user}> :wave:`);
+});
+
+app.message("test", async ({ message, say }) => {
+  // https://api.github.com/repos/Uki884/test-label-approved-pull-requests/issues
+  const result = await axios.get(
+    "https://api.github.com/repos/smartcamp/boxil/issues"
+  );
+  console.log('result', result)
 });
 
 module.exports.handler = async (event, context, callback) => {
