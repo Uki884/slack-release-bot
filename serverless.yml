@@ -7,6 +7,9 @@ provider:
   environment:
     SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
     SLACK_BOT_TOKEN: ${env:SLACK_BOT_TOKEN}
+    GITHUB_TOKEN: ${env:GITHUB_TOKEN}
+    GITHUB_USERNAME: ${env:GITHUB_USERNAME}
+    GITHUB_REPO: ${env:GITHUB_REPO}
 functions:
   slack:
     handler: app.handler

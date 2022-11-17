@@ -70,13 +70,15 @@ app.message(directMention(), "リリースしたい", async ({ message, say }) =
   } else {
     await say({
       unfurl_links: true,
-      blocks: {
-        type: "section",
-        text: {
-        type: "mrkdwn",
-        text: "リリースできそうなPRが見つからなかったよ...！",
-        },
-      }
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "リリースできそうなPRが見つからなかったよ...！もっと開発しよう！",
+          },
+        }
+      ]
     });
   }
 });
