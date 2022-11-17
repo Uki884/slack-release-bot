@@ -1,4 +1,4 @@
-const { App, AwsLambdaReceiver } = require('@slack/bolt');
+const { App, AwsLambdaReceiver, directMention } = require("@slack/bolt");
 const axiosBase = require("axios");
 
 const axios = axiosBase.create({
@@ -19,73 +19,123 @@ const app = new App({
   receiver: awsLambdaReceiver,
 });
 
-app.message('hello', async ({ message, say }) => {
-  await say({
-    blocks: [
-      {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": `Hey there <@${message.user}>!`
-        },
-        "accessory": {
-          "type": "button",
-          "text": {
-            "type": "plain_text",
-            "text": "Click Me"
-          },
-          "action_id": "button_click"
-        }
-      }
-    ],
-    text: `Hey there <@${message.user}>!`
-  });
-});
-
-app.action('button_click', async ({ body, ack, say }) => {
+app.action("approve_button", async ({ body, ack, respond, action }) => {
+  const targetAction = body.actions[0]
+  const blockId = targetAction.block_id;
+  const changedBlocks = body.message.blocks.map(block => {
+    if (block.block_id === blockId) {
+      block.fields[0].text += " *(Merged)*";
+      delete block.accessory;
+      return block;
+    }
+    return block
+  })
   await ack();
-  await say(`<@${body.user.id}> clicked the button`);
+  try {
+    await axios.put(
+      `https://api.github.com/repos/${process.env.GITHUB_USERNAME}/${process.env.GITHUB_REPO}/pulls/${targetAction.value}/merge`
+    );
+    respond({
+      unfurl_links: true,
+      blocks: changedBlocks,
+    });
+  } catch (e) {
+    respond({
+      unfurl_links: true,
+      blocks: body.message.blocks,
+    });
+  }
 });
 
-app.message('goodbye', async ({ message, say }) => {
-  await say(`See ya later, <@${message.user}> :wave:`);
-});
-
-app.message("test", async ({ message, say }) => {
+app.message(directMention(), "リリースしたい", async ({ message, say }) => {
   // https://api.github.com/repos/Uki884/test-label-approved-pull-requests/issues
   const { data } = await axios.get(
-    "https://api.github.com/repos/Uki884/test-label-approved-pull-requests/issues",
+    `https://api.github.com/repos/${process.env.GITHUB_USERNAME}/${process.env.GITHUB_REPO}/issues`,
     { params: { state: "open", labels: "Mergeable", pulls: "true" } }
   );
   const pullRequests = data.map((item) => {
     return {
+      id: item.id,
+      number: item.number,
+      user: item.user,
       title: item.title,
       url: item.html_url,
     };
   });
-  const fields = pullRequests.map((pullRequest, index) => {
-    return {
-      type: "mrkdwn",
-      text: `${index + 1}. <${pullRequest.url}|${pullRequest.title}>`,
-    };
-  });
-  await say({
-    text: `Hey there <@${message.user}>!`,
-    unfurl_links: true,
-    blocks: [
-      {
+  if (pullRequests.length) {
+    await say({
+      unfurl_links: true,
+      blocks: buildPrSections(pullRequests),
+    });
+  } else {
+    await say({
+      unfurl_links: true,
+      blocks: {
         type: "section",
         text: {
-          type: "mrkdwn",
-          text: "リリースできるPRをもってきたよ",
+        type: "mrkdwn",
+        text: "リリースできそうなPRが見つからなかったよ...！",
         },
+      }
+    });
+  }
+});
+
+const buildPrSections = (pullRequests) => {
+  const header = {
+    type: "section",
+    text: {
+      type: "mrkdwn",
+      text: "リリースできそうなPRをもってきたよ！",
+    },
+  };
+  const result = pullRequests.map((pullRequest, index) => {
+    const section = {
+      type: "section",
+      fields: [
+        {
+          type: "mrkdwn",
+          text: `<${pullRequest.url}|#${pullRequest.number} *${pullRequest.title}*> by ${pullRequest.user.login}`,
+        },
+      ],
+      accessory: {
+        type: "button",
+        text: {
+          type: "plain_text",
+          text: "マージ",
+        },
+        confirm: {
+          title: {
+            type: "plain_text",
+            text: "マージ確認",
+          },
+          text: {
+            type: "mrkdwn",
+            text: `<${pullRequest.url}|#${pullRequest.number} ${pullRequest.title}> をマージするよ？`,
+          },
+          deny: {
+            type: "plain_text",
+            text: "やめる",
+          },
+          confirm: {
+            type: "plain_text",
+            text: "OK",
+          },
+        },
+        style: "primary",
+        value: String(pullRequest.number),
+        action_id: "approve_button",
       },
-      {
-        type: "section",
-        fields: fields,
-      },
-    ],
-  });
+    };
+    return section;
+  })
+
+  return [header, ...result];
+}
+
+app.error(async (error) => {
+  // エラーの詳細をチェックして、メッセージ送信のリトライやアプリの停止などの対処を行う
+  console.error(error);
 });
 
 module.exports.handler = async (event, context, callback) => {
