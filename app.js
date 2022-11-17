@@ -53,10 +53,39 @@ app.message('goodbye', async ({ message, say }) => {
 
 app.message("test", async ({ message, say }) => {
   // https://api.github.com/repos/Uki884/test-label-approved-pull-requests/issues
-  const result = await axios.get(
-    "https://api.github.com/repos/smartcamp/boxil/issues"
+  const { data } = await axios.get(
+    "https://api.github.com/repos/Uki884/test-label-approved-pull-requests/issues",
+    { params: { state: "open", labels: "Mergeable", pulls: "true" } }
   );
-  console.log('result', result)
+  const pullRequests = data.map((item) => {
+    return {
+      title: item.title,
+      url: item.html_url,
+    };
+  });
+  const fields = pullRequests.map((pullRequest, index) => {
+    return {
+      type: "mrkdwn",
+      text: `${index + 1}. <${pullRequest.url}|${pullRequest.title}>`,
+    };
+  });
+  await say({
+    text: `Hey there <@${message.user}>!`,
+    unfurl_links: true,
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "リリースできるPRをもってきたよ",
+        },
+      },
+      {
+        type: "section",
+        fields: fields,
+      },
+    ],
+  });
 });
 
 module.exports.handler = async (event, context, callback) => {
