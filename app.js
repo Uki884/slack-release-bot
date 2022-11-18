@@ -81,6 +81,21 @@ app.message(directMention(), "リリースしたい", async ({ message, say }) =
   }
 });
 
+app.message(directMention(), "リリースしたくない", async ({ message, say }) => {
+  await say({
+    unfurl_links: true,
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "リリースしたくない？とても疲れてますね。しっかり休んでください",
+        },
+      },
+    ],
+  });
+});
+
 const buildPrSections = (pullRequests) => {
   const header = {
     type: "section",
