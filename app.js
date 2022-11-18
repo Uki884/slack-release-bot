@@ -98,34 +98,34 @@ const buildPrSections = (pullRequests) => {
           text: `<${pullRequest.url}|#${pullRequest.number} *${pullRequest.title}*> by ${pullRequest.user.login}`,
         },
       ],
-      accessory: {
-        type: "button",
-        text: {
-          type: "plain_text",
-          text: "マージ",
-        },
-        confirm: {
-          title: {
-            type: "plain_text",
-            text: "マージ確認",
-          },
-          text: {
-            type: "mrkdwn",
-            text: `<${pullRequest.url}|#${pullRequest.number} ${pullRequest.title}> をマージしますか？`,
-          },
-          deny: {
-            type: "plain_text",
-            text: "やめる",
-          },
-          confirm: {
-            type: "plain_text",
-            text: "OK",
-          },
-        },
-        style: "primary",
-        value: String(pullRequest.number),
-        action_id: "approve_button",
-      },
+      // accessory: {
+      //   type: "button",
+      //   text: {
+      //     type: "plain_text",
+      //     text: "マージ",
+      //   },
+      //   confirm: {
+      //     title: {
+      //       type: "plain_text",
+      //       text: "マージ確認",
+      //     },
+      //     text: {
+      //       type: "mrkdwn",
+      //       text: `<${pullRequest.url}|#${pullRequest.number} ${pullRequest.title}> をマージしますか？`,
+      //     },
+      //     deny: {
+      //       type: "plain_text",
+      //       text: "やめる",
+      //     },
+      //     confirm: {
+      //       type: "plain_text",
+      //       text: "OK",
+      //     },
+      //   },
+      //   style: "primary",
+      //   value: String(pullRequest.number),
+      //   action_id: "approve_button",
+      // },
     };
     return section;
   })
