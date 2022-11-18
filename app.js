@@ -86,7 +86,7 @@ const buildPrSections = (pullRequests) => {
     type: "section",
     text: {
       type: "mrkdwn",
-      text: "リリースできそうなPRはこちらです。",
+      text: "<!subteam^S01EKMNQVS9>\nリリースできそうなPRはこちらです。",
     },
   };
   const result = pullRequests.map((pullRequest, index) => {
