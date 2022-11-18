@@ -13,7 +13,6 @@ const awsLambdaReceiver = new AwsLambdaReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
 });
 
-// Initializes your app with your bot token and the AWS Lambda ready receiver
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   receiver: awsLambdaReceiver,
@@ -48,7 +47,6 @@ app.action("approve_button", async ({ body, ack, respond, action }) => {
 });
 
 app.message(directMention(), "リリースしたい", async ({ message, say }) => {
-  // https://api.github.com/repos/Uki884/test-label-approved-pull-requests/issues
   const { data } = await axios.get(
     `https://api.github.com/repos/${process.env.GITHUB_USERNAME}/${process.env.GITHUB_REPO}/issues`,
     { params: { state: "open", labels: "Mergeable", pulls: "true" } }
@@ -75,7 +73,7 @@ app.message(directMention(), "リリースしたい", async ({ message, say }) =
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "リリースできそうなPRが見つからなかったよ！もっと開発しようね！",
+            text: "リリースできそうなPRが見つかりませんでした。",
           },
         }
       ]
@@ -88,7 +86,7 @@ const buildPrSections = (pullRequests) => {
     type: "section",
     text: {
       type: "mrkdwn",
-      text: "リリースできそうなPRをもってきたよ！",
+      text: "リリースできそうなPRはこちらです。",
     },
   };
   const result = pullRequests.map((pullRequest, index) => {
@@ -113,7 +111,7 @@ const buildPrSections = (pullRequests) => {
           },
           text: {
             type: "mrkdwn",
-            text: `<${pullRequest.url}|#${pullRequest.number} ${pullRequest.title}> をマージするよ？`,
+            text: `<${pullRequest.url}|#${pullRequest.number} ${pullRequest.title}> をマージしますか？`,
           },
           deny: {
             type: "plain_text",
