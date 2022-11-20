@@ -1,8 +1,8 @@
 {
   "name": "slack-release-bot",
   "version": "1.0.0",
-  "description": "Deploying to AWS Lambda ⚡️ Bolt for JavaScript using the AwsLambdaReceiver",
-  "main": "app.js",
+  "description": "Slack Release Bot",
+  "main": "handler.js",
   "scripts": {
     "start": "NODE_OPTIONS=--enable-source-maps && node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
