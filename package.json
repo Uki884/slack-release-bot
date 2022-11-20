@@ -1,5 +1,5 @@
 {
-  "name": "bolt-js-aws-lambda-receiver",
+  "name": "slack-release-bot",
   "version": "1.0.0",
   "description": "Deploying to AWS Lambda ⚡️ Bolt for JavaScript using the AwsLambdaReceiver",
   "main": "app.js",
