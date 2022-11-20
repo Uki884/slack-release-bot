@@ -1,5 +1,22 @@
 service: serverless-bolt-js
 frameworkVersion: '3'
+
+package:
+  individually: true
+custom:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    exclude: ['aws-sdk']
+    target: 'node14'
+    define: { 'require.resolve': undefined }
+    platform: 'node'
+    concurrency: 10
+    watch:
+      pattern: ['src/**/*.ts'] # match only typescript files in src directory
+      ignore: ['temp/**/*']
+
 provider:
   name: aws
   runtime: nodejs14.x
@@ -12,11 +29,12 @@ provider:
     GITHUB_REPO: ${env:GITHUB_REPO}
 functions:
   slack:
-    handler: app.handler
+    handler: src/handler.handler
     events:
       - http:
           path: slack/events
           method: post
 useDotenv: true
 plugins:
+  - serverless-esbuild
   - serverless-offline
