@@ -3,6 +3,7 @@ import { dontWantRelease } from "./functions/dontWantRelease";
 import { hello } from "./functions/hello";
 import { mergeablePullRequestList } from "./functions/mergeablePullRequestList";
 import { mergePullRequest } from "./functions/mergePullRequst";
+import { overflowActions } from "./functions/overflowActions";
 
 const awsLambdaReceiver = new AwsLambdaReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET as string,
@@ -16,6 +17,8 @@ const app = new App({
 app.message('hello', hello);
 
 app.action("merge_pull_request", mergePullRequest);
+
+app.action("overflow_actions", overflowActions);
 
 app.message(directMention(), "リリースしたい", mergeablePullRequestList);
 

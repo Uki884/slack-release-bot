@@ -43,19 +43,38 @@ const buildPrSections = (pullRequests) => {
       text: "<!subteam^S01EKMNQVS9>\nリリースできそうなPRはこちらです。",
     },
   };
-  const result = pullRequests.map((pullRequest) => {
+  const result = pullRequests.map((pullRequest, index) => {
     const section = {
       type: "section",
       fields: [
         {
           type: "mrkdwn",
-          text: `<${pullRequest.url}|#${pullRequest.number} *${pullRequest.title}*> by ${pullRequest.user.login}`,
+          text: `${index + 1}. <${pullRequest.url}|#${pullRequest.number} *${pullRequest.title}*> by ${pullRequest.user.login}`,
         },
       ],
-      // accessory: {}
+      accessory: PullRequestOverflowMenu
     };
     return section;
   });
 
-  return [header, ...result];
+  return [header, divider, ...result, divider];
 };
+
+const divider = {
+  type: "divider",
+};
+
+const PullRequestOverflowMenu = {
+  type: "overflow",
+  "action_id": "overflow_actions",
+  options: [
+    {
+      text: {
+        type: "plain_text",
+        text: "非表示",
+        emoji: true,
+      },
+      value: `action_1`,
+    },
+  ],
+}
