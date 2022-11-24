@@ -27,6 +27,8 @@ provider:
     GITHUB_TOKEN: ${env:GITHUB_TOKEN}
     GITHUB_USERNAME: ${env:GITHUB_USERNAME}
     GITHUB_REPO: ${env:GITHUB_REPO}
+    STG_RELEASE_EVENT_NAME: ${env:STG_RELEASE_EVENT_NAME}
+    PROD_RELEASE_EVENT_NAME: ${env:PROD_RELEASE_EVENT_NAME}
 functions:
   slack:
     handler: src/handler.handler

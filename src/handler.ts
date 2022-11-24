@@ -1,4 +1,6 @@
 import { App, AwsLambdaReceiver, directMention } from "@slack/bolt";
+import { deployProduction } from "./functions/deployProduction";
+import { deployStaging } from "./functions/deployStaging";
 import { dontWantRelease } from "./functions/dontWantRelease";
 import { hello } from "./functions/hello";
 import { mergeablePullRequestList } from "./functions/mergeablePullRequestList";
@@ -19,6 +21,10 @@ app.message('hello', hello);
 app.action("merge_pull_request", mergePullRequest);
 
 app.action("overflow_actions", overflowActions);
+
+app.action("deploy_staging", deployStaging);
+
+app.action("deploy_production", deployProduction);
 
 app.message(directMention(), "リリースしたい", mergeablePullRequestList);
 
