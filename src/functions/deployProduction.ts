@@ -27,37 +27,37 @@ export const deployProduction = async ({ body, ack, respond }) => {
   }
 };
 
+export const ProductionReleaseButton = {
+  type: "button",
+  text: {
+    type: "plain_text",
+    text: "リリースノート作成",
+  },
+  confirm: {
+    title: {
+      type: "plain_text",
+      text: "確認",
+    },
+    text: {
+      type: "mrkdwn",
+      text: `リリースノート作成を作成しますか？`,
+    },
+    deny: {
+      type: "plain_text",
+      text: "キャンセル",
+    },
+    confirm: {
+      type: "plain_text",
+      text: "OK",
+    },
+  },
+  style: "primary",
+  value: "ok",
+  action_id: "deploy_production",
+};
+
 export const DeployButtonForProduction = {
   type: "actions",
   block_id: "deploy_button_for_production",
-  elements: [
-    {
-      type: "button",
-      text: {
-        type: "plain_text",
-        text: "Productionデプロイ",
-      },
-      confirm: {
-        title: {
-          type: "plain_text",
-          text: "確認",
-        },
-        text: {
-          type: "mrkdwn",
-          text: `Productionリリースを開始しますか？`,
-        },
-        deny: {
-          type: "plain_text",
-          text: "やめる",
-        },
-        confirm: {
-          type: "plain_text",
-          text: "OK",
-        },
-      },
-      style: "primary",
-      value: "ok",
-      action_id: "deploy_production",
-    },
-  ],
+  elements: [ProductionReleaseButton],
 };

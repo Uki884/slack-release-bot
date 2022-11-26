@@ -1,5 +1,5 @@
 import { filterPullRequests, GithubApi } from "../api/githubApi";
-import { DeployButtonForProduction } from "./deployProduction";
+import { ProductionReleaseButton } from "./deployProduction";
 const isIncludes = (arr, target) => arr.some((el) => target.includes(el.url));
 
 export const deployStaging = async ({ body, ack, respond }) => {
@@ -17,10 +17,6 @@ export const deployStaging = async ({ body, ack, respond }) => {
       (block) => block.block_id == "pull_request_list"
     );
 
-    const deployButtonIndex = (body as any).message.blocks.findIndex(
-      (block) => block.block_id == "deploy_button_for_staging"
-    );
-
     const newFields = changedBlock.fields.map((field) => {
       const isExist = isIncludes(result, field.text);
       if (isExist) {
@@ -34,10 +30,14 @@ export const deployStaging = async ({ body, ack, respond }) => {
       if (block.block_id == "pull_request_list") {
         return changedBlock;
       }
+      if (block.block_id == 'deploy_button_for_staging') {
+
+        block.elements = [ProductionReleaseButton];
+        return block;
+      }
       return block;
     });
 
-    resultBlocks.splice(deployButtonIndex, 1, DeployButtonForProduction);
 
     respond({
       unfurl_links: true,
@@ -59,7 +59,7 @@ export const DeployButtonForStaging = {
       type: "button",
       text: {
         type: "plain_text",
-        text: "Stagingデプロイ",
+        text: "Stagingリリース",
       },
       confirm: {
         title: {
@@ -67,12 +67,12 @@ export const DeployButtonForStaging = {
           text: "確認",
         },
         text: {
-          type: "mrkdwn",
-          text: `Stagingリリースを開始しますか？`,
+          type: "plain_text",
+          text: "Stagingリリースを開始しますか？",
         },
         deny: {
           type: "plain_text",
-          text: "やめる",
+          text: "キャンセル",
         },
         confirm: {
           type: "plain_text",

@@ -30,6 +30,9 @@ app.message(directMention(), "リリースしたい", mergeablePullRequestList);
 
 app.message(directMention(), "リリースしたくない", dontWantRelease);
 
+app.command("/release-list", mergeablePullRequestList)
+app.command("/release-stg", deployStaging);
+
 app.error(async (error) => {
   console.error('app error', error);
 });
