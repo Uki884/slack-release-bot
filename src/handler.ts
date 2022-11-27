@@ -6,6 +6,7 @@ import { hello } from "./functions/hello";
 import { mergeablePullRequestList } from "./functions/mergeablePullRequestList";
 import { mergePullRequest } from "./functions/mergePullRequst";
 import { overflowActions } from "./functions/overflowActions";
+import { publishReleaseNote } from "./functions/publishReleaseNote";
 
 const awsLambdaReceiver = new AwsLambdaReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET as string,
@@ -25,6 +26,8 @@ app.action("overflow_actions", overflowActions);
 app.action("deploy_staging", deployStaging);
 
 app.action("deploy_production", deployProduction);
+
+app.action("publish_release_note", publishReleaseNote);
 
 app.message(directMention(), "リリースしたい", mergeablePullRequestList);
 

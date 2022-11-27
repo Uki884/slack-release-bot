@@ -9,12 +9,6 @@ export const deployProduction = async ({ body, ack, respond }) => {
       event_type: process.env.PROD_RELEASE_EVENT_NAME as string,
     });
 
-    const deployButtonIndex = (body as any).message.blocks.findIndex(
-      (block) => block.block_id == "deploy_button_for_production"
-    );
-
-    (body as any).message.blocks.splice(deployButtonIndex, 1);
-
     respond({
       unfurl_links: true,
       blocks: (body as any).message.blocks,
@@ -31,7 +25,7 @@ export const ProductionReleaseButton = {
   type: "button",
   text: {
     type: "plain_text",
-    text: "リリースノート作成",
+    text: "Create Release Note",
   },
   confirm: {
     title: {

@@ -51,36 +51,30 @@ export const deployStaging = async ({ body, ack, respond }) => {
   }
 };
 
-export const DeployButtonForStaging = {
-  type: "actions",
-  block_id: "deploy_button_for_staging",
-  elements: [
-    {
-      type: "button",
-      text: {
-        type: "plain_text",
-        text: "Stagingリリース",
-      },
-      confirm: {
-        title: {
-          type: "plain_text",
-          text: "確認",
-        },
-        text: {
-          type: "plain_text",
-          text: "Stagingリリースを開始しますか？",
-        },
-        deny: {
-          type: "plain_text",
-          text: "キャンセル",
-        },
-        confirm: {
-          type: "plain_text",
-          text: "OK",
-        },
-      },
-      value: "ok",
-      action_id: "deploy_staging",
+export const StagingReleaseButton = {
+  type: "button",
+  text: {
+    type: "plain_text",
+    text: "Release Staging",
+  },
+  confirm: {
+    title: {
+      type: "plain_text",
+      text: "確認",
     },
-  ],
+    text: {
+      type: "plain_text",
+      text: "Stagingリリースを開始しますか？",
+    },
+    deny: {
+      type: "plain_text",
+      text: "キャンセル",
+    },
+    confirm: {
+      type: "plain_text",
+      text: "OK",
+    },
+  },
+  value: "ok",
+  action_id: "deploy_staging",
 };
