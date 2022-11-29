@@ -2,7 +2,10 @@ import { githubApiRequest } from "../lib/axios";
 import { ProductionReleaseButton } from "./deployProduction";
 import { StagingReleaseButton } from "./deployStaging";
 
-export const mergeablePullRequestList = async ({ say }) => {
+export const mergeablePullRequestList = async ({ say, ack }) => {
+  if (ack) {
+    await ack()
+  }
   const { data } = await githubApiRequest.get(
     `https://api.github.com/repos/${process.env.GITHUB_USERNAME}/${process.env.GITHUB_REPO}/issues`,
     { params: { state: "open", labels: "Mergeable", pulls: "true" } }
