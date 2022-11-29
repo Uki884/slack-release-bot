@@ -1,5 +1,6 @@
 import { githubApiRequest } from "../lib/axios";
-import { DeployButtonForStaging } from "./deployStaging";
+import { ProductionReleaseButton } from "./deployProduction";
+import { StagingReleaseButton } from "./deployStaging";
 
 export const mergeablePullRequestList = async ({ say }) => {
   const { data } = await githubApiRequest.get(
@@ -41,17 +42,17 @@ const buildPrSections = (pullRequests) => {
     type: "section",
     text: {
       type: "mrkdwn",
-      text: "<!subteam^S01EKMNQVS9>\nリリースできそうなPRはこちらです。",
+      text: "リリースできそうなPRはこちらです。",
     },
   };
 
-  return [
-    header,
-    divider,
-    ...buildPrList(pullRequests),
-    divider,
-    DeployButtonForStaging,
-  ];
+  const buttons = {
+    type: "actions",
+    block_id: "deploy_button_for_staging",
+    elements: [StagingReleaseButton, ProductionReleaseButton],
+  };
+
+  return [header, divider, ...buildPrList(pullRequests), divider, buttons];
 };
 
 export const buildPrList = (pullRequests) => {

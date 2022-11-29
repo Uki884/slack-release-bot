@@ -13,6 +13,10 @@ export class GithubApi {
   async runRepositoryDispatchEvent(payload: { event_type: string }) {
     return await this.api.post("/dispatches", payload);
   }
+
+  async updateRelease(releaseId: string, payload: { draft: boolean }) {
+    return await this.api.patch(`/releases/${releaseId}`, payload);
+  }
 }
 
 export const filterPullRequests = (data: any) => {
