@@ -1,5 +1,5 @@
 {
-  "name": "boxil-slack-bot-v2",
+  "name": "boxil-slack-bot-2",
   "version": "0.0.0",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240605.0",
@@ -14,6 +14,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@tsndr/cloudflare-worker-jwt": "^2.5.3",
     "slack-cloudflare-workers": "^0.12.0"
   }
 }

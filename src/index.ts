@@ -1,14 +1,17 @@
-import { SlackApp, SlackEdgeAppEnv } from "slack-cloudflare-workers";
+import { SlackApp } from "slack-cloudflare-workers";
 import { releaseList } from "./commands/release-list";
+import { ENV } from "./types";
 
 export default {
   async fetch(
     request: Request,
-    env: SlackEdgeAppEnv,
+    env: ENV,
     ctx: ExecutionContext
   ): Promise<Response> {
     const app = new SlackApp({ env });
+    console.log('env', env);
     releaseList(app);
+
     return await app.run(request, ctx);
   },
 };
