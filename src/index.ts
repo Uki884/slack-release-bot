@@ -7,7 +7,16 @@ export default {
     ctx: ExecutionContext
   ): Promise<Response> {
     const app = new SlackApp({ env });
-
+    app.command("/release-list",
+      async (_req) => {
+        return "What's up?";
+      },
+      async (req) => {
+        await req.context.respond({
+          text: "Hey! This is an async response!"
+        });
+      }
+    );
     return await app.run(request, ctx);
   },
 };
