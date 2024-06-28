@@ -1,12 +1,21 @@
 import jwt from '@tsndr/cloudflare-worker-jwt'
 
-const PATH_LIST = {
-  ISSUES: "issues",
-  PULLS: "pulls",
-  INSTALLATIONS: "app/installations",
+const PATH_LIST =  {
+  ISSUES: () => "issues" as const,
+  PULLS: () => "pulls" as const,
+  INSTALLATIONS: () => "app/installations" as const,
+  ACCESS_TOKENS: (installationId: number) => `app/installations/${installationId}/access_tokens` as const,
 } as const;
 
-type PathList = typeof PATH_LIST[keyof typeof PATH_LIST];
+type PathList = {
+  ISSUES: ReturnType<typeof PATH_LIST.ISSUES>;
+  PULLS: ReturnType<typeof PATH_LIST.PULLS>;
+  INSTALLATIONS: ReturnType<typeof PATH_LIST.INSTALLATIONS>;
+  ACCESS_TOKENS: ReturnType<typeof PATH_LIST.ACCESS_TOKENS>;
+};
+
+type PathListKeys = keyof PathList;
+
 
 type Env = {
   GITHUB_PRIVATE_KEY: string;
@@ -36,19 +45,10 @@ export class GithubApi {
       pulls: "true",
     }
 
-    return await this.repoRequest("issues", params, {
+    return await this.repoApiRequest(PATH_LIST.ISSUES(), params, {
       method: "GET",
     });
   }
-
-  get baseUrl() {
-    return `https://api.github.com`
-  }
-
-  get reposUrl() {
-    return `${this.baseUrl}/repos/${this.GITHUB_USERNAME}/${this.GITHUB_REPO}`
-  }
-
 
   async getToken() {
     const cert = this.GITHUB_PRIVATE_KEY as string;
@@ -79,7 +79,7 @@ export class GithubApi {
     }
 
     const response = await this.apiRequest(
-      `app/installations/${installation.id}/access_tokens`,
+      PATH_LIST.ACCESS_TOKENS(installation.id),
       {},
       {
         method: "POST",
@@ -89,9 +89,9 @@ export class GithubApi {
     return result.token;
   }
 
-  async repoRequest<T>(path: PathList, params: { [key: string]: string } | undefined, options: RequestInit): Promise<T> {
+  async repoApiRequest<T>(path: PathList[PathListKeys], params: { [key: string]: string } | undefined, options: RequestInit): Promise<T> {
     const accessToken = await this.getAccessToken();
-    return await this.handleRequest(`${this.reposUrl}/${path}`, params, {
+    return await this.handleRequest(`https://api.github.com/repos/${this.GITHUB_USERNAME}/${this.GITHUB_REPO}/${path}`, params, {
       ...options,
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -99,8 +99,8 @@ export class GithubApi {
     });
   }
 
-  async apiRequest<T>(path: string, params: { [key: string]: string } | undefined, options: RequestInit): Promise<T> {
-    const url = `${this.baseUrl}/${path}`
+  async apiRequest<T>(path: PathList[PathListKeys], params: { [key: string]: string } | undefined, options: RequestInit): Promise<T> {
+    const url = `https://api.github.com/${path}`
     const accessToken = await this.getToken();
     return await this.handleRequest(url, params, {
       ...options,
