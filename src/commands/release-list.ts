@@ -1,4 +1,4 @@
-import { ActionsBlock, AnyMessageBlock, RichTextBlock, SectionBlock, SlackApp } from "slack-cloudflare-workers";
+import { ActionsBlock, ContextBlock, SectionBlock, SlackApp } from "slack-cloudflare-workers";
 import { ENV } from "../types";
 import { GithubApi } from "../api/githubApi";
 import { ACTION_ID_LIST } from "../constants/ACTION_ID_LIST";
@@ -15,15 +15,25 @@ export const releaseList = (app: SlackApp<ENV>) => {
       const prList = await api.getMergeablePr();
 
       const pullRequests = prList.map((pullRequest, index) => {
-        const section: SectionBlock = {
-          type: "section",
+        const section: ContextBlock = {
+          type: "context",
           block_id: `${pullRequest.number}`,
-          text: {
-            type: "mrkdwn",
-            text: `${index + 1}. <${pullRequest.html_url}|#${pullRequest.number} *${pullRequest.title
-              }*> by ${pullRequest.user.login}`,
-          },
-        };
+          elements: [
+            {
+              type: "mrkdwn",
+              text: `${index + 1}. <${pullRequest.html_url}|#${pullRequest.number} *${pullRequest.title}*>`
+            },
+            {
+              type: "image",
+              image_url: pullRequest.user.avatar_url,
+              alt_text: pullRequest.user.login,
+            },
+            {
+              type: "mrkdwn",
+              text: `<${pullRequest.user.html_url}|*${pullRequest.user.login}*>`,
+            },
+          ]
+        }
         return section;
       });
 
