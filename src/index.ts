@@ -3,11 +3,7 @@ import { releaseList } from "./commands/release-list";
 import { ENV } from "./types";
 
 export default {
-  async fetch(
-    request: Request,
-    env: ENV,
-    ctx: ExecutionContext
-  ): Promise<Response> {
+  async fetch(request: Request, env: ENV, ctx: ExecutionContext): Promise<Response> {
     const app = new SlackApp({ env });
     releaseList(app);
 

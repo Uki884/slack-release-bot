@@ -6,7 +6,8 @@ import { BLOCK_ID_LIST } from "../constants/BLOCK_ID_LIST";
 import { dividerBlock } from "../blocks/dividerBlock";
 
 export const releaseList = (app: SlackApp<ENV>) => {
-  return app.command("/release-list-2",
+  return app.command(
+    "/release-list-2",
     async (_req) => {
       return "リリースできそうなPRをもってきます！😃";
     },
@@ -21,7 +22,7 @@ export const releaseList = (app: SlackApp<ENV>) => {
           elements: [
             {
               type: "mrkdwn",
-              text: `${index + 1}. <${pullRequest.html_url}|#${pullRequest.number} *${pullRequest.title}*>`
+              text: `${index + 1}. <${pullRequest.html_url}|#${pullRequest.number} *${pullRequest.title}*>`,
             },
             {
               type: "image",
@@ -32,8 +33,8 @@ export const releaseList = (app: SlackApp<ENV>) => {
               type: "mrkdwn",
               text: `<${pullRequest.user.html_url}|*${pullRequest.user.login}*>`,
             },
-          ]
-        }
+          ],
+        };
         return section;
       });
 
@@ -72,13 +73,8 @@ export const releaseList = (app: SlackApp<ENV>) => {
       await req.context.respond({
         unfurl_links: true,
         text: "リリースできそうなPRはこちらです！😃",
-        blocks: [
-          header,
-          dividerBlock,
-          ...pullRequests,
-          stagingReleaseButtons,
-        ]
+        blocks: [header, dividerBlock, ...pullRequests, stagingReleaseButtons],
       });
-    }
+    },
   );
-}
+};
