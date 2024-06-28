@@ -66,7 +66,7 @@ export class GithubApi {
   }
 
   async getAccessToken() {
-    const installations = await this.apiRequest<{ app_slug: string, id: number }[]>("app/installations", {}, {
+    const installations = await this.apiRequest<{ app_slug: string, id: number }[]>(PATH_LIST.INSTALLATIONS(), {}, {
       method: "GET",
     });
 
