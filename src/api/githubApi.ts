@@ -29,6 +29,27 @@ export class GithubApi {
     );
   }
 
+  async getMergeablePr() {
+    const params = {
+      state: "open",
+      labels: "Mergeable",
+      pulls: "true",
+    }
+
+    return await this.repoRequest("issues", params, {
+      method: "GET",
+    });
+  }
+
+  get baseUrl() {
+    return `https://api.github.com`
+  }
+
+  get reposUrl() {
+    return `${this.baseUrl}/repos/${this.GITHUB_USERNAME}/${this.GITHUB_REPO}`
+  }
+
+
   async getToken() {
     const cert = this.GITHUB_PRIVATE_KEY as string;
     const payload = {
@@ -41,13 +62,11 @@ export class GithubApi {
       algorithm: "RS256",
     });
 
-    console.log('token', token)
-
     return token;
   }
 
   async getAccessToken() {
-    const installations = await this.handleRequest<{ app_slug: string }[]>("app/installations", {}, {
+    const installations = await this.apiRequest<{ app_slug: string, id: number }[]>("app/installations", {}, {
       method: "GET",
     });
 
@@ -55,38 +74,56 @@ export class GithubApi {
       (installation) => installation.app_slug === this.GITHUB_APP_NAME
     );
 
-    console.log('installation', installation)
-    return "";
-  }
-
-  async getMergeablePr() {
-    const params = {
-      state: "open",
-      labels: "Mergeable",
-      pulls: "true",
+    if (!installation) {
+      return "";
     }
 
-    return await this.handleRequest("issues", params, {
-      method: "GET",
+    const response = await this.apiRequest(
+      `app/installations/${installation.id}/access_tokens`,
+      {},
+      {
+        method: "POST",
+      }
+    );
+    const result = await response as { token: string };
+    return result.token;
+  }
+
+  async repoRequest<T>(path: PathList, params: { [key: string]: string } | undefined, options: RequestInit): Promise<T> {
+    const accessToken = await this.getAccessToken();
+    return await this.handleRequest(`${this.reposUrl}/${path}`, params, {
+      ...options,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      }
     });
   }
 
-  async handleRequest<T>(path: PathList, params: { [key: string]: string } | undefined, options: RequestInit): Promise<T> {
-    const queryParams = params ? new URLSearchParams(params) : undefined
-    console.log('queryParams', queryParams)
-
-    const accessToken = this.getToken();
-    const url = `https://api.github.com/repos/${this.GITHUB_USERNAME}/${this.GITHUB_REPO}/${path}`;
-
-    const result = await fetch(`${url}${queryParams?.toString() || ''}`, {
+  async apiRequest<T>(path: string, params: { [key: string]: string } | undefined, options: RequestInit): Promise<T> {
+    const url = `${this.baseUrl}/${path}`
+    const accessToken = await this.getToken();
+    return await this.handleRequest(url, params, {
       ...options,
       headers: {
+        Authorization: `Bearer ${accessToken}`,
+      }
+    }
+    );
+  }
+
+  async handleRequest<T>(url: string, params: { [key: string]: string } | undefined, options: RequestInit): Promise<T> {
+    const queryParams = params ? new URLSearchParams(params) : undefined
+
+    const response = await fetch(`${url}?${queryParams?.toString() || ''}`, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'User-Agent': 'request',
         "Content-Type": "application/json",
-        Accept: "application/vnd.github.machine-man-preview+json",
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-      },
+        Accept: "application/vnd.github",
+      }
     });
-    console.log('result', result)
-    return await result.json() as T;
+    const result = await response.json();
+    return await result as T
   };
 }
