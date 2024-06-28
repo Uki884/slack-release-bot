@@ -1,9 +1,10 @@
 import jwt from "@tsndr/cloudflare-worker-jwt";
-import { PullRequest } from "./types";
+import { PullRequest, PullRequestDetail } from "./types";
 
 const PATH_LIST = {
   ISSUES: () => "issues" as const,
   PULLS: () => "pulls" as const,
+  PULL: (number: number) => `pulls/${number}` as const,
   INSTALLATIONS: () => "app/installations" as const,
   ACCESS_TOKENS: (installationId: number) =>
     `app/installations/${installationId}/access_tokens` as const,
@@ -12,6 +13,7 @@ const PATH_LIST = {
 type PathList = {
   ISSUES: ReturnType<typeof PATH_LIST.ISSUES>;
   PULLS: ReturnType<typeof PATH_LIST.PULLS>;
+  PULL: ReturnType<typeof PATH_LIST.PULL>;
   INSTALLATIONS: ReturnType<typeof PATH_LIST.INSTALLATIONS>;
   ACCESS_TOKENS: ReturnType<typeof PATH_LIST.ACCESS_TOKENS>;
 };
@@ -53,6 +55,12 @@ export class GithubApi {
     };
 
     return await this.repoApiRequest<PullRequest[]>(PATH_LIST.ISSUES(), params, {
+      method: "GET",
+    });
+  }
+
+  async getPullRequest(number: number) {
+    return await this.repoApiRequest<PullRequestDetail>(PATH_LIST.PULL(number), {}, {
       method: "GET",
     });
   }

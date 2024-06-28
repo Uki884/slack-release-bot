@@ -15,8 +15,9 @@ export const releaseList = (app: SlackApp<ENV>) => {
       const api = GithubApi.new(app.env);
       const prList = await api.getMergeablePr();
 
-      const pullRequests = prList.map((pullRequest, index) => {
-        const section: ContextBlock = {
+      const pullRequests = await Promise.all(prList.map(async (pullRequest, index) => {
+        const pullRequestDetail = await api.getPullRequest(pullRequest.number);
+        const context: ContextBlock = {
           type: "context",
           block_id: `${pullRequest.number}`,
           elements: [
@@ -33,10 +34,19 @@ export const releaseList = (app: SlackApp<ENV>) => {
               type: "mrkdwn",
               text: `<${pullRequest.user.html_url}|*${pullRequest.user.login}*>`,
             },
+            {
+              type: "mrkdwn",
+              text: `(${pullRequestDetail.head.ref} -> ${pullRequestDetail.base.ref})`,
+            }
           ],
         };
-        return section;
-      });
+        if (['main', 'master'].includes(pullRequestDetail.base.ref)) {
+          return context
+        }
+        return null
+      })).then((contexts) => contexts.filter((context) => context !== null))
+
+      console.log('pullRequests', pullRequests)
 
       const header: SectionBlock = {
         type: "section",

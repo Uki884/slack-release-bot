@@ -1,4 +1,4 @@
-import { SlackApp } from "slack-cloudflare-workers";
+import { ExecutionContext, SlackApp } from "slack-cloudflare-workers";
 import { releaseList } from "./commands/release-list";
 import { ENV } from "./types";
 
