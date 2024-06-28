@@ -9,7 +9,6 @@ export default {
     ctx: ExecutionContext
   ): Promise<Response> {
     const app = new SlackApp({ env });
-    console.log('env', env);
     releaseList(app);
 
     return await app.run(request, ctx);

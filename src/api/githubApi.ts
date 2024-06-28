@@ -1,4 +1,5 @@
 import jwt from '@tsndr/cloudflare-worker-jwt'
+import { PullRequest } from './types';
 
 const PATH_LIST =  {
   ISSUES: () => "issues" as const,
@@ -45,7 +46,7 @@ export class GithubApi {
       pulls: "true",
     }
 
-    return await this.repoApiRequest(PATH_LIST.ISSUES(), params, {
+    return await this.repoApiRequest<PullRequest[]>(PATH_LIST.ISSUES(), params, {
       method: "GET",
     });
   }

@@ -1,19 +1,73 @@
-import { SlackApp } from "slack-cloudflare-workers";
+import { ActionsBlock, AnyMessageBlock, RichTextBlock, SectionBlock, SlackApp } from "slack-cloudflare-workers";
 import { ENV } from "../types";
 import { GithubApi } from "../api/githubApi";
+import { ACTION_ID_LIST } from "../constants/ACTION_ID_LIST";
+import { BLOCK_ID_LIST } from "../constants/BLOCK_ID_LIST";
+import { dividerBlock } from "../blocks/dividerBlock";
 
 export const releaseList = (app: SlackApp<ENV>) => {
-  app.command("/release-list-2",
+  return app.command("/release-list-2",
     async (_req) => {
-      return "What's up?";
+      return "リリースできそうなPRをもってきます！😃";
     },
     async (req) => {
       const api = GithubApi.new(app.env);
       const prList = await api.getMergeablePr();
-      console.log('prList', prList);
+
+      const pullRequests = prList.map((pullRequest, index) => {
+        const section: SectionBlock = {
+          type: "section",
+          block_id: `${pullRequest.number}`,
+          text: {
+            type: "mrkdwn",
+            text: `${index + 1}. <${pullRequest.html_url}|#${pullRequest.number} *${pullRequest.title
+              }*> by ${pullRequest.user.login}`,
+          },
+        };
+        return section;
+      });
+
+      const header: SectionBlock = {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `<!subteam^S01EKMNQVS9>\nリリースできそうなPRはこちらです！😃\n実行者: <@${req.context.userId}>`,
+        },
+        accessory: {
+          type: "button",
+          text: {
+            type: "plain_text",
+            text: "リスト更新",
+          },
+          action_id: ACTION_ID_LIST.UPDATE_MERGEABLE_PR_LIST_ACTION,
+        },
+      };
+
+      const stagingReleaseButtons: ActionsBlock = {
+        type: "actions",
+        block_id: BLOCK_ID_LIST.DEPLOY_BUTTON_FOR_STAGING_BLOCK,
+        elements: [
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Deploy Staging",
+            },
+            value: "ok",
+            action_id: ACTION_ID_LIST.DEPLOY_STAGING_ACTION,
+          },
+        ],
+      };
 
       await req.context.respond({
-        text: `<@${req.context.userId}> さん、何かご用ですか？`
+        unfurl_links: true,
+        text: "リリースできそうなPRはこちらです！😃",
+        blocks: [
+          header,
+          dividerBlock,
+          ...pullRequests,
+          stagingReleaseButtons,
+        ]
       });
     }
   );
