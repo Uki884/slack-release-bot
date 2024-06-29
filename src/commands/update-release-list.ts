@@ -5,11 +5,11 @@ import { ACTION_ID_LIST } from "../constants/ACTION_ID_LIST";
 import { BLOCK_ID_LIST } from "../constants/BLOCK_ID_LIST";
 import { dividerBlock } from "../blocks/dividerBlock";
 
-export const releaseList = (app: SlackApp<ENV>) => {
-  return app.command(
-    ACTION_ID_LIST.RELEASE_LIST_ACTION,
+export const updateReleaseList = (app: SlackApp<ENV>) => {
+  return app.action(
+    ACTION_ID_LIST.UPDATE_PR_LIST_ACTION,
     async (_req) => {
-      return "リリースできそうなPRをもってきます！😃";
+      return "リリースリストを更新します！😃";
     },
     async (req) => {
       const api = GithubApi.new(app.env);
@@ -46,6 +46,8 @@ export const releaseList = (app: SlackApp<ENV>) => {
         return null
       })).then((contexts) => contexts.filter((context) => context !== null))
 
+      console.log('pullRequests', pullRequests)
+
       const header: SectionBlock = {
         type: "section",
         text: {
@@ -73,16 +75,17 @@ export const releaseList = (app: SlackApp<ENV>) => {
               text: "Deploy Staging",
             },
             value: "ok",
-            action_id: ACTION_ID_LIST.SHOW_STAGING_MODAL_ACTION,
+            action_id: ACTION_ID_LIST.DEPLOY_STAGING_ACTION,
           },
         ],
       };
-
-      await req.context.respond({
-        unfurl_links: true,
-        text: "リリースできそうなPRはこちらです！😃",
-        blocks: [header, dividerBlock, ...pullRequests, stagingReleaseButtons],
-      });
+      if (req.context.respond) {
+        await req.context.respond({
+          unfurl_links: true,
+          text: "リリースできそうなPRはこちらです！😃",
+          blocks: [header, dividerBlock, ...pullRequests, stagingReleaseButtons],
+        });
+      }
     },
   );
 };
