@@ -3,6 +3,7 @@ import { ENV } from "../types";
 import { GithubApi } from "../api/githubApi";
 import { ACTION_ID_LIST } from "../constants/ACTION_ID_LIST";
 import { COMMAND_LIST } from "../constants/COMMAND_LIST";
+import { formatJST } from "../lib/date-fns";
 
 export const releaseStagingModal = (app: SlackApp<ENV>) => {
   return app.action(
@@ -11,16 +12,16 @@ export const releaseStagingModal = (app: SlackApp<ENV>) => {
     async ({ context, body }) => {
       const api = GithubApi.new(app.env);
       const latestRelease = await api.getLatestRelease();
-      // const tagName = `prod-${dayjs().tz().format("YYYYMMDD-HHmm")}`;
+      const tagName = `prod-${formatJST(new Date(), 'yyyyMMdd-HHmm')}`;
 
-      console.log("latestRelease", latestRelease ? latestRelease.tag_name : "");
+      const generatedReleaseNote = await api.getReleaseNotes(
+        {
+          tagName: tagName,
+          previousTagName: latestRelease ? latestRelease.tag_name : undefined,
+        }
+      );
 
-      // const { data: generatedReleaseNote } = await this.githubApi.getReleaseNotes(
-      //   {
-      //     tag_name: tagName,
-      //     previous_tag_name: latestRelease ? latestRelease.tag_name : undefined,
-      //   }
-      // );
+      console.log('generatedReleaseNote', generatedReleaseNote);
 
       const head: SectionBlock = {
         type: "section",

@@ -43,20 +43,21 @@ export class GithubApi extends GithubBaseApi {
       pulls: "true",
     };
 
-    return await this.repoApiRequest<PullRequest[]>(PATH_LIST.ISSUES(), params, {
+    return await this.repoApiRequest<PullRequest[]>(PATH_LIST.ISSUES(), {
+      params,
       method: "GET",
     });
   }
 
   async getPullRequest(number: number) {
-    return await this.repoApiRequest<PullRequestDetail>(PATH_LIST.PULL(number), {}, {
+    return await this.repoApiRequest<PullRequestDetail>(PATH_LIST.PULL(number), {
       method: "GET",
     });
   }
 
   // 最新のリリース取得
   async getLatestRelease() {
-    return await this.repoApiRequest<Release>(PATH_LIST.RELEASE_LATEST(), {}, {
+    return await this.repoApiRequest<Release>(PATH_LIST.RELEASE_LATEST(), {
       method: "GET",
     });
   }
@@ -80,7 +81,10 @@ export class GithubApi extends GithubBaseApi {
       ...(configurationFilePath ? { configuration_file_path: configurationFilePath } : {}),
     };
 
-    return await this.repoApiRequest(PATH_LIST.RELEASES_GENERATE_NOTES(), payload, {
+    console.log('payload', payload)
+
+    return await this.repoApiRequest(PATH_LIST.RELEASES_GENERATE_NOTES(), {
+      body: JSON.stringify(payload),
       method: "POST",
     });
   }

@@ -23,6 +23,10 @@ type PathList = {
 
 type PathListKeys = keyof PathList;
 
+type Params = { [key: string]: string } | undefined;
+
+type RequestOption = RequestInit & { params?: Params };
+
 export class GithubBaseApi {
   private GITHUB_PRIVATE_KEY: string;
   private GITHUB_APP_ID: string;
@@ -62,7 +66,6 @@ export class GithubBaseApi {
   private async getAccessToken() {
     const installations = await this.apiRequest<{ app_slug: string; id: number }[]>(
       PATH_LIST.INSTALLATIONS(),
-      {},
       {
         method: "GET",
       },
@@ -78,7 +81,6 @@ export class GithubBaseApi {
 
     const response = await this.apiRequest(
       PATH_LIST.ACCESS_TOKENS(installation.id),
-      {},
       {
         method: "POST",
       },
@@ -89,13 +91,11 @@ export class GithubBaseApi {
 
   protected async repoApiRequest<T>(
     path: PathList[PathListKeys],
-    params: { [key: string]: string } | undefined,
-    options: RequestInit,
+    options: RequestOption
   ): Promise<T> {
     const accessToken = await this.getAccessToken();
     return await this.handleRequest(
       `https://api.github.com/repos/${this.GITHUB_USERNAME}/${this.GITHUB_REPO}/${path}`,
-      params,
       {
         ...options,
         headers: {
@@ -107,12 +107,11 @@ export class GithubBaseApi {
 
   protected async apiRequest<T>(
     path: PathList[PathListKeys],
-    params: { [key: string]: string } | undefined,
-    options: RequestInit,
+    options: RequestOption
   ): Promise<T> {
     const url = `https://api.github.com/${path}`;
     const accessToken = await this.getToken();
-    return await this.handleRequest(url, params, {
+    return await this.handleRequest(url, {
       ...options,
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -122,10 +121,10 @@ export class GithubBaseApi {
 
   private async handleRequest<T>(
     url: string,
-    params: { [key: string]: string } | undefined,
-    options: RequestInit,
+    options: RequestOption
   ): Promise<T> {
-    const queryParams = params ? new URLSearchParams(params) : undefined;
+    const queryParams = options.params ? new URLSearchParams(options.params) : undefined;
+    delete options.params;
 
     const response = await fetch(`${url}?${queryParams?.toString() || ""}`, {
       ...options,

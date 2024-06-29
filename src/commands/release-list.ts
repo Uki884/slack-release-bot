@@ -74,7 +74,7 @@ export const releaseList = (app: SlackApp<ENV>) => {
               text: "Deploy Staging",
             },
             value: "ok",
-            action_id: ACTION_ID_LIST.SHOW_STAGING_MODAL_ACTION,
+            action_id: COMMAND_LIST.SHOW_STAGING_MODAL_ACTION,
           },
         ],
       };
