@@ -23,7 +23,7 @@ export const releaseList = (app: SlackApp<ENV>) => {
           elements: [
             {
               type: "mrkdwn",
-              text: `${index + 1}. <${pullRequest.url}|#${pullRequest.number} *${pullRequest.title}*>`,
+              text: `${index + 1}. <${pullRequest.url}|#${pullRequest.number} *${pullRequest.title}*> (${pullRequest.mergeable})`,
             },
             {
               type: "image",

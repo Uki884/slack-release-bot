@@ -63,6 +63,7 @@ export class GithubApi extends GithubBaseApi {
               headRef {
                 name
               }
+              mergeable
               title
               url
               reviewDecision

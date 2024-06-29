@@ -1,24 +1,3 @@
-// repository {
-//   name
-//   owner {
-//     login
-//   }
-// }
-// number
-// url
-// author {
-//   login
-//   avatarUrl
-// }
-// baseRef {
-//   name
-// }
-// headRef {
-//   name
-// }
-// title
-// url
-// reviewDecision
 // これが型
 export type PullRequest = {
   author: {
@@ -34,6 +13,7 @@ export type PullRequest = {
   headRef: {
     name: string;
   };
+  mergeable: 'MERGEABLE' | 'CONFLICTING' | 'UNKNOWN';
   title: string;
   reviewDecision: string;
 };
