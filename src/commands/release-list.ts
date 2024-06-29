@@ -14,42 +14,34 @@ export const releaseList = (app: SlackApp<ENV>) => {
     },
     async (req) => {
       const api = GithubApi.new(app.env);
-      const prList = await api.getMergeablePr();
-      // const approvedPrList = await api.getApprovedPrList();
-      // console.log(approvedPrList);
+      const approvedPrList = await api.getApprovedPrList();
 
-      const pullRequests = await Promise.all(
-        prList.map(async (pullRequest, index) => {
-          const pullRequestDetail = await api.getPullRequest(pullRequest.number);
-          const context: ContextBlock = {
-            type: "context",
-            block_id: `${pullRequest.number}`,
-            elements: [
-              {
-                type: "mrkdwn",
-                text: `${index + 1}. <${pullRequest.html_url}|#${pullRequest.number} *${pullRequest.title}*>`,
-              },
-              {
-                type: "image",
-                image_url: pullRequest.user.avatar_url,
-                alt_text: pullRequest.user.login,
-              },
-              {
-                type: "mrkdwn",
-                text: `<${pullRequest.user.html_url}|*${pullRequest.user.login}*>`,
-              },
-              {
-                type: "mrkdwn",
-                text: `(${pullRequestDetail.base.ref} <- ${pullRequestDetail.head.ref})`,
-              },
-            ],
-          };
-          if (["main", "master"].includes(pullRequestDetail.base.ref)) {
-            return context;
-          }
-          return null;
-        }),
-      ).then((contexts) => contexts.filter((context) => context !== null));
+      const pullRequests = approvedPrList.map((pullRequest, index) => {
+        const context: ContextBlock = {
+          type: "context",
+          block_id: `${pullRequest.number}`,
+          elements: [
+            {
+              type: "mrkdwn",
+              text: `${index + 1}. <${pullRequest.url}|#${pullRequest.number} *${pullRequest.title}*>`,
+            },
+            {
+              type: "image",
+              image_url: pullRequest.author.avatarUrl,
+              alt_text: pullRequest.author.login,
+            },
+            {
+              type: "mrkdwn",
+              text: `<${pullRequest.author.url}|*${pullRequest.author.login}*>`,
+            },
+            {
+              type: "mrkdwn",
+              text: `(${pullRequest.baseRef.name} <- ${pullRequest.headRef.name})`,
+            },
+          ],
+        };
+        return context;
+      });
 
       const header: SectionBlock = {
         type: "section",

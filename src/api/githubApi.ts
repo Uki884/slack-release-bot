@@ -1,4 +1,4 @@
-import { PullRequest, PullRequestDetail, Release, ReleaseNote } from "./types";
+import { RestApiTypes, GraphqlApiTypes } from "./types";
 import { GithubBaseApi, PATH_LIST } from "./githubBaseApi";
 import { gql } from "graphql-request";
 
@@ -38,7 +38,7 @@ export class GithubApi extends GithubBaseApi {
       pulls: "true",
     };
 
-    return await this.repoApiRequest<PullRequest[]>(PATH_LIST.ISSUES(), {
+    return await this.repoApiRequest<RestApiTypes.PullRequest[]>(PATH_LIST.ISSUES(), {
       params,
       method: "GET",
     });
@@ -50,46 +50,50 @@ export class GithubApi extends GithubBaseApi {
         search(type: ISSUE, last: 100, query: $query) {
           nodes {
             ... on PullRequest {
-              repository {
+              number
+              url
+              author {
+                login
+                avatarUrl
+                url
+              }
+              baseRef {
                 name
-                owner {
-                  login
-                }
+              }
+              headRef {
+                name
               }
               title
               url
               reviewDecision
-              commits(last: 1) {
-                nodes {
-                  commit {
-                    url
-                    statusCheckRollup {
-                      state
-                    }
-                  }
-                }
-              }
             }
           }
         }
       }
     `;
-    const variables = `repo:${this.GITHUB_USERNAME}/${this.GITHUB_REPO} is:pr`;
+    const variables = `repo:${this.GITHUB_USERNAME}/${this.GITHUB_REPO} is:pr is:open`;
 
-    return await this.graphqlRequest<{ search: { nodes: PullRequest[] } }>(document, {
-      query: variables,
-    });
+    const result = await this.graphqlRequest<{ search: { nodes: GraphqlApiTypes.PullRequest[] } }>(
+      document,
+      {
+        query: variables,
+      },
+    );
+
+    return result.search.nodes.filter(
+      (pr) => pr.reviewDecision === "APPROVED" && ["main", "master"].includes(pr.baseRef.name),
+    );
   }
 
   async getPullRequest(number: number) {
-    return await this.repoApiRequest<PullRequestDetail>(PATH_LIST.PULL(number), {
+    return await this.repoApiRequest<RestApiTypes.PullRequestDetail>(PATH_LIST.PULL(number), {
       method: "GET",
     });
   }
 
   // 最新のリリース取得
   async getLatestRelease() {
-    return await this.repoApiRequest<Release>(PATH_LIST.RELEASE_LATEST(), {
+    return await this.repoApiRequest<RestApiTypes.Release>(PATH_LIST.RELEASE_LATEST(), {
       method: "GET",
     });
   }
@@ -113,9 +117,12 @@ export class GithubApi extends GithubBaseApi {
       ...(configurationFilePath ? { configuration_file_path: configurationFilePath } : {}),
     };
 
-    return await this.repoApiRequest<ReleaseNote>(PATH_LIST.RELEASES_GENERATE_NOTES(), {
-      body: JSON.stringify(payload),
-      method: "POST",
-    });
+    return await this.repoApiRequest<RestApiTypes.ReleaseNote>(
+      PATH_LIST.RELEASES_GENERATE_NOTES(),
+      {
+        body: JSON.stringify(payload),
+        method: "POST",
+      },
+    );
   }
 }
