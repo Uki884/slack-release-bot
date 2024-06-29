@@ -15,38 +15,40 @@ export const updateReleaseList = (app: SlackApp<ENV>) => {
       const api = GithubApi.new(app.env);
       const prList = await api.getMergeablePr();
 
-      const pullRequests = await Promise.all(prList.map(async (pullRequest, index) => {
-        const pullRequestDetail = await api.getPullRequest(pullRequest.number);
-        const context: ContextBlock = {
-          type: "context",
-          block_id: `${pullRequest.number}`,
-          elements: [
-            {
-              type: "mrkdwn",
-              text: `${index + 1}. <${pullRequest.html_url}|#${pullRequest.number} *${pullRequest.title}*>`,
-            },
-            {
-              type: "image",
-              image_url: pullRequest.user.avatar_url,
-              alt_text: pullRequest.user.login,
-            },
-            {
-              type: "mrkdwn",
-              text: `<${pullRequest.user.html_url}|*${pullRequest.user.login}*>`,
-            },
-            {
-              type: "mrkdwn",
-              text: `(${pullRequestDetail.head.ref} -> ${pullRequestDetail.base.ref})`,
-            }
-          ],
-        };
-        if (['main', 'master'].includes(pullRequestDetail.base.ref)) {
-          return context
-        }
-        return null
-      })).then((contexts) => contexts.filter((context) => context !== null))
+      const pullRequests = await Promise.all(
+        prList.map(async (pullRequest, index) => {
+          const pullRequestDetail = await api.getPullRequest(pullRequest.number);
+          const context: ContextBlock = {
+            type: "context",
+            block_id: `${pullRequest.number}`,
+            elements: [
+              {
+                type: "mrkdwn",
+                text: `${index + 1}. <${pullRequest.html_url}|#${pullRequest.number} *${pullRequest.title}*>`,
+              },
+              {
+                type: "image",
+                image_url: pullRequest.user.avatar_url,
+                alt_text: pullRequest.user.login,
+              },
+              {
+                type: "mrkdwn",
+                text: `<${pullRequest.user.html_url}|*${pullRequest.user.login}*>`,
+              },
+              {
+                type: "mrkdwn",
+                text: `(${pullRequestDetail.head.ref} -> ${pullRequestDetail.base.ref})`,
+              },
+            ],
+          };
+          if (["main", "master"].includes(pullRequestDetail.base.ref)) {
+            return context;
+          }
+          return null;
+        }),
+      ).then((contexts) => contexts.filter((context) => context !== null));
 
-      console.log('pullRequests', pullRequests)
+      console.log("pullRequests", pullRequests);
 
       const header: SectionBlock = {
         type: "section",

@@ -31,3 +31,7 @@ export type PullRequestDetail = {
 export type Release = {
   tag_name: string;
 };
+
+export type ReleaseNote = {
+  body: string;
+};

@@ -1,4 +1,5 @@
 import jwt from "@tsndr/cloudflare-worker-jwt";
+import { GraphQLClient } from "graphql-request";
 
 export const PATH_LIST = {
   ISSUES: () => "issues" as const,
@@ -31,8 +32,8 @@ export class GithubBaseApi {
   private GITHUB_PRIVATE_KEY: string;
   private GITHUB_APP_ID: string;
   private GITHUB_APP_NAME: string;
-  private GITHUB_USERNAME: string;
-  private GITHUB_REPO: string;
+  protected GITHUB_USERNAME: string;
+  protected GITHUB_REPO: string;
 
   constructor(
     GITHUB_PRIVATE_KEY: string,
@@ -79,19 +80,16 @@ export class GithubBaseApi {
       return "";
     }
 
-    const response = await this.apiRequest(
-      PATH_LIST.ACCESS_TOKENS(installation.id),
-      {
-        method: "POST",
-      },
-    );
+    const response = await this.apiRequest(PATH_LIST.ACCESS_TOKENS(installation.id), {
+      method: "POST",
+    });
     const result = (await response) as { token: string };
     return result.token;
   }
 
   protected async repoApiRequest<T>(
     path: PathList[PathListKeys],
-    options: RequestOption
+    options: RequestOption,
   ): Promise<T> {
     const accessToken = await this.getAccessToken();
     return await this.handleRequest(
@@ -105,10 +103,35 @@ export class GithubBaseApi {
     );
   }
 
-  protected async apiRequest<T>(
-    path: PathList[PathListKeys],
-    options: RequestOption
+  protected async graphqlRequest<T>(
+    document: string | import("graphql").DocumentNode,
+    variables: object,
   ): Promise<T> {
+    const accessToken = await this.getAccessToken();
+
+    const client = new GraphQLClient(`https://api.github.com/graphql`, {
+      headers: {
+        Authorization: "Bearer " + accessToken,
+        "User-Agent": "request",
+      },
+    });
+
+    try {
+      const response = await client.request({
+        document,
+        variables,
+      });
+
+      return response as T;
+    } catch (error: any) {
+      error.response.errors.forEach((error: any) => {
+        console.error("Error:", error.message);
+      });
+      throw error;
+    }
+  }
+
+  protected async apiRequest<T>(path: PathList[PathListKeys], options: RequestOption): Promise<T> {
     const url = `https://api.github.com/${path}`;
     const accessToken = await this.getToken();
     return await this.handleRequest(url, {
@@ -119,10 +142,7 @@ export class GithubBaseApi {
     });
   }
 
-  private async handleRequest<T>(
-    url: string,
-    options: RequestOption
-  ): Promise<T> {
+  private async handleRequest<T>(url: string, options: RequestOption): Promise<T> {
     const queryParams = options.params ? new URLSearchParams(options.params) : undefined;
     delete options.params;
 

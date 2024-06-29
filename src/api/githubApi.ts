@@ -1,5 +1,6 @@
-import { PullRequest, PullRequestDetail, Release } from "./types";
+import { PullRequest, PullRequestDetail, Release, ReleaseNote } from "./types";
 import { GithubBaseApi, PATH_LIST } from "./githubBaseApi";
+import { gql } from "graphql-request";
 
 type Env = {
   GITHUB_PRIVATE_KEY: string;
@@ -17,13 +18,7 @@ export class GithubApi extends GithubBaseApi {
     GITHUB_USERNAME: string,
     GITHUB_REPO: string,
   ) {
-    super(
-      GITHUB_PRIVATE_KEY,
-      GITHUB_APP_ID,
-      GITHUB_APP_NAME,
-      GITHUB_USERNAME,
-      GITHUB_REPO,
-    )
+    super(GITHUB_PRIVATE_KEY, GITHUB_APP_ID, GITHUB_APP_NAME, GITHUB_USERNAME, GITHUB_REPO);
   }
 
   static new(env: Env) {
@@ -46,6 +41,43 @@ export class GithubApi extends GithubBaseApi {
     return await this.repoApiRequest<PullRequest[]>(PATH_LIST.ISSUES(), {
       params,
       method: "GET",
+    });
+  }
+
+  async getApprovedPrList() {
+    const document = gql`
+      query ($query: String!) {
+        search(type: ISSUE, last: 100, query: $query) {
+          nodes {
+            ... on PullRequest {
+              repository {
+                name
+                owner {
+                  login
+                }
+              }
+              title
+              url
+              reviewDecision
+              commits(last: 1) {
+                nodes {
+                  commit {
+                    url
+                    statusCheckRollup {
+                      state
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+    const variables = `repo:${this.GITHUB_USERNAME}/${this.GITHUB_REPO} is:pr`;
+
+    return await this.graphqlRequest<{ search: { nodes: PullRequest[] } }>(document, {
+      query: variables,
     });
   }
 
@@ -76,14 +108,12 @@ export class GithubApi extends GithubBaseApi {
   }) {
     const payload = {
       tag_name: tagName,
-      ...(targetCommitish ? { target_commitish:  targetCommitish } : {}),
+      ...(targetCommitish ? { target_commitish: targetCommitish } : {}),
       ...(previousTagName ? { previous_tag_name: previousTagName } : {}),
       ...(configurationFilePath ? { configuration_file_path: configurationFilePath } : {}),
     };
 
-    console.log('payload', payload)
-
-    return await this.repoApiRequest(PATH_LIST.RELEASES_GENERATE_NOTES(), {
+    return await this.repoApiRequest<ReleaseNote>(PATH_LIST.RELEASES_GENERATE_NOTES(), {
       body: JSON.stringify(payload),
       method: "POST",
     });
