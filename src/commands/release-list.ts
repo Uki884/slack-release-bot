@@ -3,7 +3,7 @@ import { ENV } from "../types";
 import { GithubApi } from "../api/githubApi";
 import { ACTION_ID_LIST } from "../constants/ACTION_ID_LIST";
 import { BLOCK_ID_LIST } from "../constants/BLOCK_ID_LIST";
-import { dividerBlock } from "../blocks/dividerBlock";
+import { DividerBlock } from "../blocks/DividerBlock";
 import { COMMAND_LIST } from "../constants/COMMAND_LIST";
 
 export const releaseList = (app: SlackApp<ENV>) => {
@@ -78,7 +78,7 @@ export const releaseList = (app: SlackApp<ENV>) => {
       await req.context.respond({
         unfurl_links: true,
         text: "リリースできそうなPRはこちらです！😃",
-        blocks: [header, dividerBlock, ...pullRequests, stagingReleaseButtons],
+        blocks: [header, DividerBlock, ...pullRequests, stagingReleaseButtons],
       });
     },
   );

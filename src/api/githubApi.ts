@@ -31,6 +31,13 @@ export class GithubApi extends GithubBaseApi {
     );
   }
 
+  async runRepositoryDispatchEvent(payload: { event_type: string }) {
+    return await this.apiRequest(PATH_LIST.DISPATCHES(), {
+      body: JSON.stringify(payload),
+      method: "POST",
+    });
+  }
+
   async getMergeablePr() {
     const params = {
       state: "open",
@@ -90,6 +97,35 @@ export class GithubApi extends GithubBaseApi {
     return await this.repoApiRequest<RestApiTypes.PullRequestDetail>(PATH_LIST.PULL(number), {
       method: "GET",
     });
+  }
+
+  // リリースノート作成
+  async createReleaseNote(payload: {
+    tagName: string;
+    targetCommitish?: string;
+    name?: string;
+    body?: string;
+    draft?: boolean;
+    prerelease?: boolean;
+    generateReleaseNotes?: boolean;
+  }) {
+    return await this.repoApiRequest<{ id: number; body: string; html_url: string }>(
+      PATH_LIST.RELEASES(),
+      {
+        body: JSON.stringify({
+          tag_name: payload.tagName,
+          ...(payload.targetCommitish ? { target_commitish: payload.targetCommitish } : {}),
+          ...(payload.name ? { name: payload.name } : {}),
+          ...(payload.body ? { body: payload.body } : {}),
+          ...(payload.draft ? { draft: payload.draft } : {}),
+          ...(payload.prerelease ? { prerelease: payload.prerelease } : {}),
+          ...(payload.generateReleaseNotes
+            ? { generateReleaseNotes: payload.generateReleaseNotes }
+            : {}),
+        }),
+        method: "POST",
+      },
+    );
   }
 
   // 最新のリリース取得

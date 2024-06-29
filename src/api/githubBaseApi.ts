@@ -10,6 +10,8 @@ export const PATH_LIST = {
     `app/installations/${installationId}/access_tokens` as const,
   RELEASE_LATEST: () => "releases/latest" as const,
   RELEASES_GENERATE_NOTES: () => "releases/generate-notes" as const,
+  DISPATCHES: () => "dispatches" as const,
+  RELEASES: () => "releases" as const,
 } as const;
 
 type PathList = {
@@ -20,6 +22,8 @@ type PathList = {
   ACCESS_TOKENS: ReturnType<typeof PATH_LIST.ACCESS_TOKENS>;
   RELEASE_LATEST: ReturnType<typeof PATH_LIST.RELEASE_LATEST>;
   RELEASES_GENERATE_NOTES: ReturnType<typeof PATH_LIST.RELEASES_GENERATE_NOTES>;
+  DISPATCHES: ReturnType<typeof PATH_LIST.DISPATCHES>;
+  RELEASES: ReturnType<typeof PATH_LIST.RELEASES>;
 };
 
 type PathListKeys = keyof PathList;

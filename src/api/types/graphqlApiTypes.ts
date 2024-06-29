@@ -13,7 +13,7 @@ export type PullRequest = {
   headRef: {
     name: string;
   };
-  mergeable: 'MERGEABLE' | 'CONFLICTING' | 'UNKNOWN';
+  mergeable: "MERGEABLE" | "CONFLICTING" | "UNKNOWN";
   title: string;
   reviewDecision: string;
 };
