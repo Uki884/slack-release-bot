@@ -6,11 +6,11 @@ import { BLOCK_ID_LIST } from "../constants/BLOCK_ID_LIST";
 import { DividerBlock } from "../blocks/DividerBlock";
 import { COMMAND_LIST } from "../constants/COMMAND_LIST";
 
-export const releaseList = (app: SlackApp<ENV>) => {
-  return app.command(
-    COMMAND_LIST.RELEASE_LIST_ACTION,
+export const updateReleaseList = (app: SlackApp<ENV>) => {
+  return app.action(
+    ACTION_ID_LIST.UPDATE_PR_LIST_ACTION,
     async (_req) => {
-      return "リリースできそうなPRをもってきます！😃";
+      return "リリースリストを更新します！😃";
     },
     async (req) => {
       const api = GithubApi.new(app.env);
@@ -75,12 +75,13 @@ export const releaseList = (app: SlackApp<ENV>) => {
         ],
       };
 
-      await req.context.respond({
-        unfurl_links: true,
-        text: "リリースできそうなPRはこちらです！😃",
-        blocks: [header, DividerBlock, ...pullRequests, stagingReleaseButtons],
-        response_type: 'in_channel',
-      });
+      if (req.context.respond) {
+        await req.context.respond({
+          unfurl_links: true,
+          text: "リリースできそうなPRはこちらです！😃",
+          blocks: [header, DividerBlock, ...pullRequests, stagingReleaseButtons],
+        });
+      }
     },
   );
 };

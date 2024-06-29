@@ -1,5 +1,5 @@
 import { AnyMessageBlock } from "slack-cloudflare-workers";
 
-export const dividerBlock: AnyMessageBlock = {
+export const DividerBlock: AnyMessageBlock = {
   type: "divider",
 };

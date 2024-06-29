@@ -27,3 +27,11 @@ export type PullRequestDetail = {
     ref: string; // マージ先ブランチ
   };
 };
+
+export type Release = {
+  tag_name: string;
+};
+
+export type ReleaseNote = {
+  body: string;
+};
