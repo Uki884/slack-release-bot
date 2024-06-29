@@ -4,6 +4,7 @@ import { GithubApi } from "../api/githubApi";
 import { ACTION_ID_LIST } from "../constants/ACTION_ID_LIST";
 import { BLOCK_ID_LIST } from "../constants/BLOCK_ID_LIST";
 import { DividerBlock } from "../blocks/DividerBlock";
+import { COMMAND_LIST } from "../constants/COMMAND_LIST";
 
 export const updateReleaseList = (app: SlackApp<ENV>) => {
   return app.action(
@@ -13,42 +14,34 @@ export const updateReleaseList = (app: SlackApp<ENV>) => {
     },
     async (req) => {
       const api = GithubApi.new(app.env);
-      const prList = await api.getMergeablePr();
+      const approvedPrList = await api.getApprovedPrList();
 
-      const pullRequests = await Promise.all(
-        prList.map(async (pullRequest, index) => {
-          const pullRequestDetail = await api.getPullRequest(pullRequest.number);
-          const context: ContextBlock = {
-            type: "context",
-            block_id: `${pullRequest.number}`,
-            elements: [
-              {
-                type: "mrkdwn",
-                text: `${index + 1}. <${pullRequest.html_url}|#${pullRequest.number} *${pullRequest.title}*>`,
-              },
-              {
-                type: "image",
-                image_url: pullRequest.user.avatar_url,
-                alt_text: pullRequest.user.login,
-              },
-              {
-                type: "mrkdwn",
-                text: `<${pullRequest.user.html_url}|*${pullRequest.user.login}*>`,
-              },
-              {
-                type: "mrkdwn",
-                text: `(${pullRequestDetail.head.ref} -> ${pullRequestDetail.base.ref})`,
-              },
-            ],
-          };
-          if (["main", "master"].includes(pullRequestDetail.base.ref)) {
-            return context;
-          }
-          return null;
-        }),
-      ).then((contexts) => contexts.filter((context) => context !== null));
-
-      console.log("pullRequests", pullRequests);
+      const pullRequests = approvedPrList.map((pullRequest, index) => {
+        const context: ContextBlock = {
+          type: "context",
+          block_id: `${pullRequest.number}`,
+          elements: [
+            {
+              type: "mrkdwn",
+              text: `${index + 1}. <${pullRequest.url}|#${pullRequest.number} *${pullRequest.title}*> (${pullRequest.mergeable})`,
+            },
+            {
+              type: "image",
+              image_url: pullRequest.author.avatarUrl,
+              alt_text: pullRequest.author.login,
+            },
+            {
+              type: "mrkdwn",
+              text: `<${pullRequest.author.url}|*${pullRequest.author.login}*>`,
+            },
+            {
+              type: "mrkdwn",
+              text: `(${pullRequest.baseRef.name} <- ${pullRequest.headRef.name})`,
+            },
+          ],
+        };
+        return context;
+      });
 
       const header: SectionBlock = {
         type: "section",
@@ -77,10 +70,11 @@ export const updateReleaseList = (app: SlackApp<ENV>) => {
               text: "Deploy Staging",
             },
             value: "ok",
-            action_id: ACTION_ID_LIST.DEPLOY_STAGING_ACTION,
+            action_id: COMMAND_LIST.SHOW_STAGING_MODAL_ACTION,
           },
         ],
       };
+
       if (req.context.respond) {
         await req.context.respond({
           unfurl_links: true,

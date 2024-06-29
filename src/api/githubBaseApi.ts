@@ -12,6 +12,7 @@ export const PATH_LIST = {
   RELEASES_GENERATE_NOTES: () => "releases/generate-notes" as const,
   DISPATCHES: () => "dispatches" as const,
   RELEASES: () => "releases" as const,
+  RELEASE_DETAIL: (releaseId: number) => `releases/${releaseId}` as const,
 } as const;
 
 type PathList = {
@@ -24,6 +25,7 @@ type PathList = {
   RELEASES_GENERATE_NOTES: ReturnType<typeof PATH_LIST.RELEASES_GENERATE_NOTES>;
   DISPATCHES: ReturnType<typeof PATH_LIST.DISPATCHES>;
   RELEASES: ReturnType<typeof PATH_LIST.RELEASES>;
+  RELEASE_DETAIL: ReturnType<typeof PATH_LIST.RELEASE_DETAIL>;
 };
 
 type PathListKeys = keyof PathList;

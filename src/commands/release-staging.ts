@@ -13,10 +13,11 @@ export const releaseStaging = (app: SlackApp<ENV>) => {
     async (_req) => {
       return "";
     },
-    async ({ body, context }) => {
+    async ({ context, payload }) => {
       const { releaseNoteId, headBlock, contentBlock, detailButton } = await deployStaging(app);
 
-      const metaData = JSON.parse(body.view.private_metadata);
+      const metaData = JSON.parse(payload.view.private_metadata);
+      
       const title: SectionBlock = {
         type: "section",
         text: {
@@ -35,8 +36,8 @@ export const releaseStaging = (app: SlackApp<ENV>) => {
 
       const clientMessage = {
         token: context.botToken,
-        channel: metaData.channel_id,
-        thread_ts: metaData.message_ts,
+        channel: metaData.channelId,
+        thread_ts: metaData.messageTs,
         text: "Stagingリリースが開始されました。",
         blocks: clientMessageBlocks,
         parse: "full",

@@ -39,8 +39,9 @@ export const releaseStagingModal = (app: SlackApp<ENV>) => {
 
       const metadata = {
         channelId: body.container.channel_id,
-        messageTs: body.container.message_ts,
+        messageTs: body.message.ts,
       };
+
       const view: ModalView = {
         type: "modal" as "modal",
         private_metadata: JSON.stringify(metadata),

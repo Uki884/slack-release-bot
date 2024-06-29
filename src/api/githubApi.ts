@@ -99,6 +99,14 @@ export class GithubApi extends GithubBaseApi {
     });
   }
 
+  // リリースを更新
+  async updateRelease(releaseId: number, payload: { draft: boolean }) {
+    return await this.repoApiRequest<RestApiTypes.PullRequestDetail>(PATH_LIST.RELEASE_DETAIL(releaseId), {
+      body: JSON.stringify(payload),
+      method: "PATCH",
+    });
+  }
+
   // リリースノート作成
   async createReleaseNote(payload: {
     tagName: string;
