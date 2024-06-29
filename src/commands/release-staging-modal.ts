@@ -1,11 +1,12 @@
-import { ActionsBlock, ContextBlock, ModalView, SectionBlock, SlackApp, ViewAckResponse } from "slack-cloudflare-workers";
+import { ModalView, SectionBlock, SlackApp } from "slack-cloudflare-workers";
 import { ENV } from "../types";
 import { GithubApi } from "../api/githubApi";
 import { ACTION_ID_LIST } from "../constants/ACTION_ID_LIST";
+import { COMMAND_LIST } from "../constants/COMMAND_LIST";
 
 export const releaseStagingModal = (app: SlackApp<ENV>) => {
   return app.action(
-    ACTION_ID_LIST.SHOW_STAGING_MODAL_ACTION,
+    COMMAND_LIST.SHOW_STAGING_MODAL_ACTION,
     async () => { },
     async ({ context, body }) => {
       const api = GithubApi.new(app.env);

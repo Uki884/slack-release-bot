@@ -4,10 +4,11 @@ import { GithubApi } from "../api/githubApi";
 import { ACTION_ID_LIST } from "../constants/ACTION_ID_LIST";
 import { BLOCK_ID_LIST } from "../constants/BLOCK_ID_LIST";
 import { dividerBlock } from "../blocks/dividerBlock";
+import { COMMAND_LIST } from "../constants/COMMAND_LIST";
 
 export const releaseList = (app: SlackApp<ENV>) => {
   return app.command(
-    ACTION_ID_LIST.RELEASE_LIST_ACTION,
+    COMMAND_LIST.RELEASE_LIST_ACTION,
     async (_req) => {
       return "リリースできそうなPRをもってきます！😃";
     },
@@ -36,7 +37,7 @@ export const releaseList = (app: SlackApp<ENV>) => {
             },
             {
               type: "mrkdwn",
-              text: `(${pullRequestDetail.head.ref} -> ${pullRequestDetail.base.ref})`,
+              text: `(${pullRequestDetail.base.ref} <- ${pullRequestDetail.head.ref})`,
             }
           ],
         };
