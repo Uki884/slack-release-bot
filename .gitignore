@@ -167,3 +167,4 @@ dist
 .pnp.\*
 
 .*.vars
+.wrangler

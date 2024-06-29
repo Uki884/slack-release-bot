@@ -1,19 +1,24 @@
 {
-  "name": "boxil-slack-bot-v2",
+  "name": "boxil-slack-bot-2",
   "version": "0.0.0",
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240605.0",
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0",
-    "wrangler": "3.60.0"
-  },
   "private": true,
+  "type": "module",
   "scripts": {
     "start": "wrangler dev",
     "deploy": "wrangler deploy",
-    "test": "vitest"
+    "test": "vitest",
+    "lint:format": "prettier --check '**/*.ts'",
+    "lint:format:fix": "prettier --write '**/*.ts'"
   },
   "dependencies": {
+    "@tsndr/cloudflare-worker-jwt": "^2.5.3",
     "slack-cloudflare-workers": "^0.12.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240605.0",
+    "typescript": "5.5.2",
+    "vitest": "^1.6.0",
+    "wrangler": "3.60.0",
+    "prettier": "^3.3.2"
   }
 }
