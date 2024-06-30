@@ -1,8 +1,15 @@
-import { AnyMessageBlock, SectionBlock, SlackApp } from "slack-cloudflare-workers";
+import { ActionsBlock, AnyMessageBlock, SectionBlock, SlackApp } from "slack-cloudflare-workers";
 import { ENV } from "../types";
 import { GithubApi } from "../api/githubApi";
 import { ACTION_ID_LIST } from "../constants/ACTION_ID_LIST";
 import { BLOCK_ID_LIST } from "../constants/BLOCK_ID_LIST";
+
+type Body = {
+  actions: { value: string }[];
+  container: { channel_id: string };
+  message: { ts: string };
+  blocks: ActionsBlock[];
+}
 
 export const releaseProduction = (app: SlackApp<ENV>) => {
   return app.action(
@@ -15,9 +22,7 @@ export const releaseProduction = (app: SlackApp<ENV>) => {
       const data = await api.updateRelease(body.actions[0].value, {
         draft: false,
       });
-
-      const bodyData = body as { message: { ts: string }, container: { channel_id: string }; blocks: { block_id: string, elements: { action_id: string; url: string }[] }[] };
-      console.log('bodyData', bodyData);
+      const bodyData = body.message as Body;
 
       const resultBlocks = bodyData.blocks.map((block) => {
         if (block.block_id == BLOCK_ID_LIST.DEPLOY_PRODUCTION_BLOCK) {
@@ -26,7 +31,7 @@ export const releaseProduction = (app: SlackApp<ENV>) => {
           );
           if (!element) return block;
 
-          element.url = data.html_url;
+          (element as any).url = data.html_url;
           block.elements = [element];
           return block as AnyMessageBlock;
         }
@@ -38,15 +43,15 @@ export const releaseProduction = (app: SlackApp<ENV>) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `Productionリリースが開始されました。\nデプロイ状況は<#C01KQ6B0Q91>で確認可能です。`,
+            text: `Productionリリースが開始されました。`,
           },
         } as SectionBlock,
       ];
 
     const clientMessage = {
       token: context.botToken,
-      channel: bodyData.container.channel_id,
-      thread_ts: bodyData.message.ts,
+      channel: body.container.channel_id,
+      thread_ts: body.message.ts,
       blocks: clientMessageBlocks,
       text: "Productionリリースが開始されました。",
       parse: "full",
@@ -57,6 +62,7 @@ export const releaseProduction = (app: SlackApp<ENV>) => {
     await context.client.chat.postMessage(clientMessage);
     context.respond && await context.respond({
       unfurl_links: true,
+      text: "Productionリリースが開始されました。",
       blocks: resultBlocks,
     });
     },
