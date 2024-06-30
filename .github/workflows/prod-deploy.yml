@@ -1,0 +1,41 @@
+name: Prod Deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Cloudflare Workers
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          secrets: |
+            GITHUB_APP_ID
+            GITHUB_APP_NAME
+            GITHUB_USERNAME
+            GITHUB_PRIVATE_KEY
+            GITHUB_REPO
+            PROD_RELEASE_EVENT_NAME
+            STG_RELEASE_EVENT_NAME
+            SLACK_BOT_TOKEN
+            SLACK_LOGGING_LEVEL
+            SLACK_SIGNING_SECRET
+        env:
+          GITHUB_APP_ID: ${{ secrets.APP_ID }}
+          GITHUB_APP_NAME: ${{ secrets.APP_NAME }}
+          GITHUB_USERNAME: ${{ secrets.USERNAME }}
+          GITHUB_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          GITHUB_REPO: ${{ secrets.REPO }}
+          PROD_RELEASE_EVENT_NAME: ${{ secrets.PROD_RELEASE_EVENT_NAME }}
+          STG_RELEASE_EVENT_NAME: ${{ secrets.STG_RELEASE_EVENT_NAME }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_LOGGING_LEVEL: ${{ secrets.SLACK_LOGGING_LEVEL }}
+          SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
+
+
