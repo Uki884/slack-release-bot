@@ -54,7 +54,7 @@ const deployStaging = async (app: SlackApp<ENV>) => {
   const api = GithubApi.new(app.env);
 
   await api.runRepositoryDispatchEvent({
-    event_type: process.env.STG_RELEASE_EVENT_NAME as string,
+    event_type: app.env.STG_RELEASE_EVENT_NAME as string,
   });
 
   const latestRelease = await api.getLatestRelease();

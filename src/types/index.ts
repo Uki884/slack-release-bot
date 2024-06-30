@@ -6,4 +6,6 @@ export type ENV = {
   GITHUB_APP_NAME: string;
   GITHUB_USERNAME: string;
   GITHUB_REPO: string;
+  STG_RELEASE_EVENT_NAME: string;
+  PROD_RELEASE_EVENT_NAME: string;
 } & SlackEdgeAppEnv;
