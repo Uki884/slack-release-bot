@@ -76,7 +76,7 @@ export const releaseList = (app: SlackApp<ENV>) => {
       };
 
       await req.context.respond({
-        unfurl_links: true,
+        unfurl_links: false,
         text: "リリースできそうなPRはこちらです！😃",
         blocks: [header, DividerBlock, ...pullRequests, stagingReleaseButtons],
         response_type: 'in_channel',
