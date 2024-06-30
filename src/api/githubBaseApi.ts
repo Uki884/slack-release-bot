@@ -130,9 +130,7 @@ export class GithubBaseApi {
 
       return response as T;
     } catch (error: any) {
-      error.response.errors.forEach((error: any) => {
-        console.error("Error:", error.message);
-      });
+      console.error(error);
       throw error;
     }
   }
