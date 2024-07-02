@@ -1,7 +1,7 @@
 import { Button } from "slack-cloudflare-workers";
 import { ACTION_ID_LIST } from "../constants/ACTION_ID_LIST";
 
-export const ProductionDeployButtonBlock = (releaseNoteId: number): Button => {
+export const ProductionDeployButtonBlock = (): Button => {
   return {
     type: "button",
     text: {
@@ -27,7 +27,6 @@ export const ProductionDeployButtonBlock = (releaseNoteId: number): Button => {
       },
     },
     style: "primary",
-    value: String(releaseNoteId),
     action_id: ACTION_ID_LIST.DEPLOY_PRODUCTION_ACTION,
   };
 };

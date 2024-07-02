@@ -3,6 +3,7 @@ import { ENV } from "../types";
 import { GithubApi } from "../api/githubApi";
 import { ACTION_ID_LIST } from "../constants/ACTION_ID_LIST";
 import { BLOCK_ID_LIST } from "../constants/BLOCK_ID_LIST";
+import { formatJST } from "../lib/date-fns";
 
 type Body = {
   actions: { value: string }[];
@@ -14,14 +15,29 @@ type Body = {
 export const releaseProduction = (app: SlackApp<ENV>) => {
   return app.action(
     ACTION_ID_LIST.DEPLOY_PRODUCTION_ACTION,
-    async (_req) => {
-      return "";
-    },
+    async (_req) => {},
     async ({ context, body }) => {
       const api = GithubApi.new(app.env);
-      const data = await api.updateRelease(body.actions[0].value, {
-        draft: false,
+      const latestRelease = await api.getLatestRelease();
+      const tagName = `prod-${formatJST(new Date(), "yyyyMMdd-HHmm")}`;
+
+      await api.runRepositoryDispatchEvent({
+        event_type: app.env.PROD_RELEASE_EVENT_NAME,
       });
+
+      const generatedReleaseNote = await api.getReleaseNotes({
+        tagName: tagName,
+        previousTagName: latestRelease ? latestRelease.tag_name : undefined,
+      });
+
+      const release = {
+        tagName: tagName,
+        name: tagName,
+        draft: false,
+        body: generatedReleaseNote.body,
+      };
+
+      const releaseNote = await api.createReleaseNote(release);
       const bodyData = body.message as Body;
 
       const resultBlocks = bodyData.blocks.map((block) => {
@@ -31,7 +47,7 @@ export const releaseProduction = (app: SlackApp<ENV>) => {
           );
           if (!element) return block;
 
-          (element as any).url = data.html_url;
+          (element as any).url = releaseNote.html_url;
           block.elements = [element];
           return block as AnyMessageBlock;
         }
@@ -43,7 +59,7 @@ export const releaseProduction = (app: SlackApp<ENV>) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `Productionリリースが開始されました。`,
+            text: `Production release has started.`,
           },
         } as SectionBlock,
       ];
