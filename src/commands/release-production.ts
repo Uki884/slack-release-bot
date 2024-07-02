@@ -59,7 +59,7 @@ export const releaseProduction = (app: SlackApp<ENV>) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `Production release has started.`,
+            text: `Productionリリースが開始されました。`,
           },
         } as SectionBlock,
       ];
