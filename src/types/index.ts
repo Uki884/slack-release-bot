@@ -8,7 +8,8 @@ export type ENV = {
   GITHUB_REPO: string;
   STG_RELEASE_EVENT_NAME: string;
   PROD_RELEASE_EVENT_NAME: string;
-} & SlackOAuthAndOIDCEnv & {
+} & {
   SLACK_INSTALLATIONS: KV;
   SLACK_OAUTH_STATES: KV;
-}
+} & SlackOAuthAndOIDCEnv;
+
