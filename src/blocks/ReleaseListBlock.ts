@@ -8,7 +8,7 @@ export const ReleaseListBlock = ({ userId }: { userId: string | undefined }) => 
     type: "section",
     text: {
       type: "mrkdwn",
-      text: `<!subteam^S01EKMNQVS9>\nリリースできそうなPRはこちらです！😃\n実行者: <@${userId}>`,
+      text: `リリースできそうなPRはこちらです！😃\n実行者: <@${userId}>`,
     },
     accessory: {
       type: "button",
