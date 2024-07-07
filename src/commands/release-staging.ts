@@ -14,32 +14,16 @@ export const releaseStaging = (app: SlackApp<ENV>) => {
       return "";
     },
     async ({ context, payload }) => {
-      const { releaseNoteId, headBlock, contentBlock, detailButton } = await deployStaging(app);
+      const { blocks } = await deployStaging(app);
 
       const metaData = JSON.parse(payload.view.private_metadata);
-      
-      const title: SectionBlock = {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `Stagingリリースが開始されました。`,
-        },
-      };
-
-      const action: ActionsBlock = {
-        type: "actions",
-        block_id: BLOCK_ID_LIST.DEPLOY_PRODUCTION_BLOCK,
-        elements: [detailButton, ProductionDeployButtonBlock(releaseNoteId)],
-      };
-
-      const clientMessageBlocks = [title, headBlock, contentBlock, action];
 
       const clientMessage = {
         token: context.botToken,
         channel: metaData.channelId,
         thread_ts: metaData.messageTs,
         text: "Stagingリリースが開始されました。",
-        blocks: clientMessageBlocks,
+        blocks: blocks,
         parse: "full",
         unfurl_links: false,
         as_user: true,
@@ -54,7 +38,7 @@ const deployStaging = async (app: SlackApp<ENV>) => {
   const api = GithubApi.new(app.env);
 
   await api.runRepositoryDispatchEvent({
-    event_type: app.env.STG_RELEASE_EVENT_NAME as string,
+    event_type: app.env.STG_RELEASE_EVENT_NAME,
   });
 
   const latestRelease = await api.getLatestRelease();
@@ -65,14 +49,13 @@ const deployStaging = async (app: SlackApp<ENV>) => {
     previousTagName: latestRelease ? latestRelease.tag_name : undefined,
   });
 
-  const release = {
-    tagName: tagName,
-    name: tagName,
-    draft: true,
-    body: generatedReleaseNote.body,
+  const title: SectionBlock = {
+    type: "section",
+    text: {
+      type: "mrkdwn",
+      text: `Stagingリリースが開始されました。`,
+    },
   };
-
-  const releaseNote = await api.createReleaseNote(release);
 
   const headBlock: SectionBlock = {
     type: "section",
@@ -85,7 +68,7 @@ const deployStaging = async (app: SlackApp<ENV>) => {
     type: "section",
     text: {
       type: "mrkdwn",
-      text: `${slackifyMarkdown(releaseNote.body)}`,
+      text: `${slackifyMarkdown(generatedReleaseNote.body)}`,
     },
   };
 
@@ -97,14 +80,16 @@ const deployStaging = async (app: SlackApp<ENV>) => {
       emoji: true,
     },
     value: "details",
-    url: `${releaseNote.html_url}`,
     action_id: ACTION_ID_LIST.RELEASE_NOTE_DETAIL_ACTION,
   };
 
+  const action: ActionsBlock = {
+    type: "actions",
+    block_id: BLOCK_ID_LIST.DEPLOY_PRODUCTION_BLOCK,
+    elements: [detailButton, ProductionDeployButtonBlock()],
+  };
+
   return {
-    releaseNoteId: releaseNote.id,
-    headBlock,
-    contentBlock,
-    detailButton,
+    blocks: [title, headBlock, contentBlock, action],
   };
 };

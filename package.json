@@ -1,5 +1,5 @@
 {
-  "name": "boxil-slack-bot-2",
+  "name": "slack-release-bot",
   "version": "0.0.0",
   "private": true,
   "type": "module",
