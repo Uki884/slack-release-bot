@@ -39,5 +39,5 @@ export const ReleaseListBlock = ({ userId }: { userId: string | undefined }) => 
   return {
     header,
     stagingReleaseButtons,
-  }
+  };
 };

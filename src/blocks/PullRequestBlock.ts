@@ -1,7 +1,7 @@
 import { ContextBlock } from "slack-cloudflare-workers";
 import { PullRequest } from "../api/types/graphqlApiTypes";
 
-export const PullRequestBlock =  (pullRequests: PullRequest[]) => {
+export const PullRequestBlock = (pullRequests: PullRequest[]) => {
   return pullRequests.map((pullRequest, index) => {
     const context: ContextBlock = {
       type: "context",

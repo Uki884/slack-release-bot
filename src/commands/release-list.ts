@@ -23,7 +23,7 @@ export const releaseList = (app: SlackApp<ENV>) => {
         unfurl_links: false,
         text: "リリースできそうなPRはこちらです！😃",
         blocks: [header, DividerBlock, ...pullRequests, stagingReleaseButtons],
-        response_type: 'in_channel',
+        response_type: "in_channel",
       });
     },
   );
