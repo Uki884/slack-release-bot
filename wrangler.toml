@@ -1,3 +1,8 @@
 name = "slack-release-bot"
 main = "src/index.ts"
 compatibility_date = "2024-07-07"
+
+kv_namespaces = [
+  { binding = "SLACK_INSTALLATIONS", id = "56f03775e4c64755a1687a342b0b89cf", preview_id = "03510d14b2fc427bbd53d1fd510f30d7" },
+  { binding = "SLACK_OAUTH_STATES", id = "46ee246dd9114ea1ab78ca95e042d51f", preview_id = "1e810cb8356f4e7c909377fa93d8d5c5" },
+]
