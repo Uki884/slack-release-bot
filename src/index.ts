@@ -1,8 +1,12 @@
-import { ExecutionContext, SlackApp } from "slack-cloudflare-workers";
+import {
+  SlackOAuthApp,
+  KVInstallationStore,
+  KVStateStore,
+} from "slack-cloudflare-workers";
 import { ENV } from "./types";
 import * as commends from "./commands";
 
-const applyCommands = (app: SlackApp<ENV>) => {
+const applyCommands = (app: SlackOAuthApp<ENV>) => {
   Object.values(commends).forEach((command) => {
     command(app);
   });
@@ -10,7 +14,12 @@ const applyCommands = (app: SlackApp<ENV>) => {
 
 export default {
   async fetch(request: Request, env: ENV, ctx: ExecutionContext): Promise<Response> {
-    const app = new SlackApp({ env });
+    const app = new SlackOAuthApp({
+      env,
+      installationStore: new KVInstallationStore(env, env.SLACK_INSTALLATIONS),
+      stateStore: new KVStateStore(env.SLACK_OAUTH_STATES),
+    });
+
     applyCommands(app);
 
     return await app.run(request, ctx);
